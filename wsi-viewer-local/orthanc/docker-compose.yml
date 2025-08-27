@@ -1,0 +1,12 @@
+services:
+  orthanc:
+    image: orthancteam/orthanc-plugins:latest
+    container_name: orthanc
+    ports:
+      - "8042:8042"   # HTTP (REST/DICOMweb)
+      - "4242:4242"   # DICOM (C-STORE)
+    volumes:
+      - ./orthanc.json:/etc/orthanc/orthanc.json:ro
+      - ./data:/var/lib/orthanc/db
+      - ./import:/import
+    restart: unless-stopped

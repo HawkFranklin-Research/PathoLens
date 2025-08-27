@@ -1,0 +1,13 @@
+{
+  "instances": [
+    {
+      "dicom_path": { "series_path": "/dicom/studies/REPLACE_STUDY_UID/series/REPLACE_SERIES_UID" },
+      "instance_uids": ["REPLACE_INSTANCE_UID"],
+      "patch_coordinates": [
+        { "x_origin": 0, "y_origin": 0, "width": 448, "height": 448 },
+        { "x_origin": 448, "y_origin": 0, "width": 448, "height": 448 }
+      ]
+    }
+  ]
+}
+

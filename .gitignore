@@ -1,0 +1,32 @@
+# OS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.venv/
+
+# Local virtualenv
+wsi-viewer-local/.venv/
+
+# Large WSI files
+*.svs
+*.tiff
+*.svs*
+data/
+
+# Env/config
+.env
+.env.*
+
+# Node
+node_modules/
+build/
+dist/
+
+# Docker artifacts
+*.tar
+

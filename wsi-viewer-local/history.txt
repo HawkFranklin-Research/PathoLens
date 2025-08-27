@@ -1,0 +1,78 @@
+WSI Viewer Local: Change Log and Provenance
+
+Summary
+- Created a local, self-contained WSI viewer environment by reusing the compiled Angular UI from the original pathology demo, wrapping it with a simple Flask server, and bundling a local DICOMweb server (Orthanc) plus an on-device AI embedding endpoint (MedSigLIP).
+
+What was copied from the pathology demo
+- Copied the compiled Angular viewer bundle directory:
+  - Source: path-foundation-demo/web
+  - Destination: wsi-viewer-local/web
+  - Notes: This is the built UI (minified JS/CSS/HTML). No Angular source was included in the pathology demo. Some assets in web/assets are Git LFS pointers (small text files), not heavy binaries.
+
+New components added
+- Flask server (viewer + proxy + predict): wsi-viewer-local/server.py
+  - Endpoints:
+    - /            -> serves shell.html (simplified layout that bypasses onboarding)
+    - /shell       -> same shell UI with an input to directly open a series
+    - /osd         -> serves OpenSeadragon demo page
+    - /dicom/...   -> reverse proxy to configured DICOMweb (DICOM_SERVER_URL)
+    - /predict     -> local MedSigLIP-backed embeddings for patch_coordinates
+  - Accepts SERVICE_ACC_KEY or BEARER_TOKEN for secured DICOMweb if needed.
+
+- Shell layout to skip onboarding: wsi-viewer-local/shell.html
+  - Left 75%: embeds the viewer; Right 25%: reserved for future panels.
+  - Can open /viewer directly via query: /shell?series=/dicom/studies/<StudyUID>/series/<SeriesUID>
+
+- OpenSeadragon demo page: wsi-viewer-local/osd/index.html
+  - For quick visual checks without DICOMweb.
+
+- MedSigLIP predictor integration: wsi-viewer-local/predict_medsiglip.py
+  - Uses Transformers AutoModel/AutoProcessor for "google/medsiglip-448".
+  - Fetches DICOM patches via ez-wsi-dicomweb and returns patch_embeddings.
+  - Supports pre-downloaded weights via MEDSIGLIP_MODEL_DIR.
+
+- One-container packaging (Orthanc + Viewer):
+  - Dockerfile: wsi-viewer-local/Dockerfile
+    - Based on orthancteam/orthanc-plugins
+    - Installs Python deps, copies app files, exposes 8042 (Orthanc) and 8080 (viewer)
+    - MEDSIGLIP_MODEL_DIR set to /app/models/medsiglip-448
+  - Entrypoint: wsi-viewer-local/start.sh (starts Orthanc then Flask server)
+
+- Orthanc local DICOMweb setup: wsi-viewer-local/orthanc/
+  - docker-compose.yml (uses orthancteam/orthanc-plugins)
+  - orthanc.json (DICOMweb enabled, dev CORS open, no auth)
+  - README.md (instructions)
+  - import_dicom.py (bulk import .dcm)
+  - query_series.py (list studies/series and print DICOMweb + viewer paths)
+
+- Data acquisition and conversion scripts: wsi-viewer-local/scripts/
+  - download_sample_wsi.py (download public DICOM WSI URLs, then import)
+  - sample_wsi_manifest.txt (placeholder; user-provided URLs)
+  - convert_wsi_to_dicom.py (convert SVS/TIFF to DICOM-WSI via wsidicomizer; import to Orthanc)
+  - download_medsiglip.py (pre-download MedSigLIP model + processor to local folder)
+
+- Examples and tests:
+  - examples/predict_example.json (template request for /predict)
+  - examples/call_predict.sh (cURL convenience for /predict)
+  - tests/ping_orthanc.py (DICOMweb reachability)
+  - tests/predict_smoke.py (end-to-end embedding smoke test)
+
+- Requirements:
+  - requirements.txt (Flask server, Transformers, Torch, ez-wsi-dicomweb)
+  - requirements-converter.txt (wsidicomizer, OpenSlide bindings, etc.)
+
+Behavioral adjustments
+- Default landing now serves shell.html to bypass the Angular onboarding/config pages.
+- Added /osd to serve the Deep Zoom test page over HTTP to avoid file:// CORS issues.
+- /predict runs locally using MedSigLIP; loads from MEDSIGLIP_MODEL_DIR if available, otherwise from Hugging Face.
+- DICOM proxy /dicom/... rewrites to the configured DICOMweb root (Orthanc inside the container by default).
+
+Fixes and compatibility
+- Orthanc image name corrected to orthancteam/orthanc-plugins.
+- SVS-to-DICOM converter now calls the wsidicomizer CLI rather than python -m entrypoint; pinned a compatible version.
+
+How to run (single container)
+- Build: docker build -t wsi-allinone .
+- Run with local data folder: docker run --rm -it -p 8080:8080 -p 8042:8042 -v /abs/path/to/wsi-data:/data --name wsi-allinone wsi-allinone
+- Convert/import slides, list series, and open via the shell as detailed in README.md.
+

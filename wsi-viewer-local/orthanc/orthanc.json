@@ -1,0 +1,32 @@
+{
+  "Name": "Local Orthanc",
+  "StorageDirectory": "/var/lib/orthanc/db",
+
+  "HttpServerEnabled": true,
+  "HttpPort": 8042,
+  "AuthenticationEnabled": false,
+  "RemoteAccessAllowed": true,
+  "ServeFolders": {
+    "/import": "/import"
+  },
+
+  "Cors": {
+    "AllowOrigin": "*",
+    "AllowHeaders": "Authorization, Content-Type, Accept, Origin",
+    "AllowMethods": "GET, POST, PUT, DELETE, OPTIONS"
+  },
+
+  "Plugins": [ "/usr/share/orthanc/plugins" ],
+
+  "DicomWeb": {
+    "Enable": true,
+    "Root": "/dicom-web",
+    "EnableWado": true,
+    "EnableQido": true,
+    "EnableStow": true,
+    "EnableWadoRs": true,
+    "EnableStowRs": true,
+    "Ssl": false
+  }
+}
+

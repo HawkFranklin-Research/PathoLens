@@ -1,0 +1,6 @@
+wsidicom>=0.11
+wsidicomizer>=0.10
+openslide-python
+tifffile
+pillow
+numpy

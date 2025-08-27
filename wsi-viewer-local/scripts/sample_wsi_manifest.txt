@@ -1,0 +1,5 @@
+# Add public HTTPS URLs to DICOM WSI files, one per line.
+# Example (placeholder):
+# https://example.org/pathology/sample_slide_1.dcm
+# https://example.org/pathology/sample_slide_2.dcm
+

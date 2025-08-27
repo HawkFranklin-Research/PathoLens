@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WSI Viewer (OpenSeadragon)</title>
+    <style>
+      html, body { height: 100%; margin: 0; }
+      #viewer { width: 100%; height: 100%; background: #000; }
+      .toolbar { position: absolute; top: 8px; left: 8px; z-index: 10; }
+      .toolbar input { width: 480px; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.1/openseadragon.min.js" integrity="sha512-2tD9aEJgY1J8n5YFAD8A1t8hJcVcjU12mXoQ5qkC9ESe5w3G7J8N8mY0zvnXV0e7ZKqC0sTVX2L2zqQAJ1F6bA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  </head>
+  <body>
+    <div class="toolbar">
+      <input id="src" type="text" value="https://openseadragon.github.io/example-images/highsmith/highsmith.dzi" />
+      <button id="load">Load</button>
+    </div>
+    <div id="viewer"></div>
+    <script>
+      const viewer = OpenSeadragon({
+        id: "viewer",
+        prefixUrl: "https://cdnjs.cloudflare.com/ajax/libs/openseadragon/4.1.1/images/",
+        showNavigator: true,
+        animationTime: 0.8,
+        maxZoomPixelRatio: 8,
+      });
+
+      function load(src) {
+        viewer.open(src);
+      }
+
+      document.getElementById('load').onclick = () => load(document.getElementById('src').value);
+      load(document.getElementById('src').value);
+    </script>
+  </body>
+  </html>
+
